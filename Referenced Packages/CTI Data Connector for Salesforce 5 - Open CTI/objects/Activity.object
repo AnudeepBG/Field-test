@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Mirage_Call_ID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Call ID</label>
+        <length>70</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Mirage_OpenCTI_CalledId__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The called number of the phone call</description>
+        <externalId>false</externalId>
+        <inlineHelpText>automatically set by Mirage OpenCTI</inlineHelpText>
+        <label>Called ID</label>
+        <required>false</required>
+        <type>Phone</type>
+    </fields>
+    <fields>
+        <fullName>Mirage_OpenCTI_CallerId__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The caller number of the phone call</description>
+        <externalId>false</externalId>
+        <inlineHelpText>automatically set by Mirage OpenCTI</inlineHelpText>
+        <label>Caller ID</label>
+        <required>false</required>
+        <type>Phone</type>
+    </fields>
+</CustomObject>

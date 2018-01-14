@@ -1,0 +1,378 @@
+<apex:page showHeader="false" controller="Mirage.mirageSystemsOpenCTIController" docType="html-5.0">
+<!--<script src="/support/api/28.0/interaction.js" type="text/javascript"></script>-->
+<!--<script src="/support/api/31.0/interaction.js" type="text/javascript"></script>-->
+<script src="/support/api/32.0/interaction.js" type="text/javascript"></script>
+<script src="/support/console/32.0/integration.js" type="text/javascript"></script>
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_jQuery}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_jQuery_Cycle}"  />
+<apex:includeScript value="{!URLFOR($Resource.Mirage__MirageSystems_OpenCTI_Languages, 'i18next-1.8.0.js')}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_JSPrototypes}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_Softphone_Settings}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_OpenCTI_Object_Worker}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_OpenCTI_Basics}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_OpenCTI_Objects}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_CDCInterface}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_CDCInterface_Actions}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_CDCInterface_Simulate}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_Softphone_Tools}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_Softphone_Log}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_Softphone_Model}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_Softphone_Controller}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_Softphone_Controller_Events}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_OpenCTI_SFInteraction}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_OpenCTI_SFInteraction_Console}"  />
+<apex:includeScript value="{!$Resource.Mirage__MirageSystems_OpenCTI_NumberFormat}"  />
+<apex:stylesheet value="{!$Resource.Mirage__MirageSystems_Softphone_Style}"  />
+<style type="text/css">
+
+.invisible {display:none!important;}
+.dial {cursor:url({!URLFOR($Resource.MirageSystems_OpenCTI_Icons,'/make_a_call_small.png')}),pointer;}
+.incoming {background-image:url({!URLFOR($Resource.MirageSystems_OpenCTI_Icons,'/missed_incoming_call.png')});}
+.outgoing {background-image:url({!URLFOR($Resource.MirageSystems_OpenCTI_Icons,'/missed_outgoing_call.png')});}
+
+</style>
+<div id="mirageSystemsOpenCTI" class="mirageSystemsOpenCTI">
+	<div id="initializing" data-i18n="app.init">Initializing...</div>
+	<div id="sidebarDiv">
+		<div id="softphone" class="invisible sidebarModule">
+			<div id="softphone_header" class="sidebarModuleHeader brandPrimaryBgr">
+				<h2 id="octiHeader" class="brandPrimaryFgr" data-i18n="app.title">CTI Data Connector</h2>
+				<img id="imgConnectionState" class="connectionState" />
+			</div>
+			<div class="sidebarModuleBody">
+				<apex:form >
+					<apex:inputText id="sfusername" value="{!sfusername}" styleClass="idSFUsername invisible"></apex:inputText>
+					<apex:inputText id="sfuserid" value="{!sfuserid}" styleClass="idSFUserId invisible"></apex:inputText>
+					<apex:inputText id="sfuserlanguage" value="{!sfuserlanguage}" styleClass="idSFUserLanguage invisible"></apex:inputText>
+					<apex:inputText id="sfusersessid" value="{!sfusersessid}" styleClass="idSFUserSessID invisible"></apex:inputText>
+				</apex:form>
+				<div id="infoPanel" class="softphoneblock">
+					<!-- <div class="invisible">
+						<button id="btnStopRequesting">stop</button>
+						<button id="btnStartRequesting">start</button>
+					</div>-->
+					<div class="callInfoLittle">
+						<label id="lblCallAditionalInfo"></label>
+						<label id="lblCallDuration"></label>
+					</div>
+					<apex:form id="frmApexFunctions">
+		    			<apex:actionFunction name="RemoveTask" action="{!RemoveTask}" onComplete="softphoneController.TaskRemoved();" reRender="frmApexFunctions">
+		        			<apex:param name="removeTaskId" assignTo="{!removeTaskId}" value="" />
+		        			<apex:param name="removedTaskCallId" assignTo="{!removedTaskCallId}" value="" />
+		        		</apex:actionFunction>
+		    			<apex:actionFunction name="CheckTask" action="{!CheckTask}" onComplete="softphoneController.TaskChecked();" reRender="frmApexFunctions">
+		        			<apex:param name="checkTaskId" assignTo="{!checkTaskId}" value="" />
+		        			<apex:param name="checkTaskCallId" assignTo="{!checkTaskCallId}" value="" />
+		        			<apex:param name="checkTaskCompletedStatus" assignTo="{!checkTaskCompletedStatus}" value="" />
+		        		</apex:actionFunction>
+		    			<apex:actionFunction name="ReadInfo" action="{!ReadInfo}" onComplete="softphoneController.ReadInfoCallback();" reRender="frmApexFunctions">
+		        			<apex:param name="readInfoId" assignTo="{!readInfoId}" value="" />
+		        			<apex:param name="readInfoName" assignTo="{!readInfoName}" value="" />
+		        			<apex:param name="readInfoType" assignTo="{!readInfoType}" value="" />
+		        			<apex:param name="readInfoCallId" assignTo="{!readInfoCallId}" value="" />
+		        		</apex:actionFunction>
+		    			<apex:actionFunction name="ReadTaskBasics" action="{!ReadTaskBasics}" onComplete="softphoneController.ReadTaskBasicsCallback();" reRender="frmApexFunctions">
+		        		</apex:actionFunction>
+		    			<apex:actionFunction name="NumberSearch" action="{!NumberSearch}" onComplete="softphoneController.NumberSearchCallback();" reRender="frmApexFunctions">
+		        			<apex:param name="numberSearchCallId" assignTo="{!numberSearchCallId}" value="" />
+		        			<apex:param name="numberSearchString" assignTo="{!numberSearchString}" value="" />
+		        		</apex:actionFunction>
+		    			<apex:actionFunction name="ExistsTask" action="{!ExistsTask}" onComplete="softphoneController.TaskExists();" reRender="frmApexFunctions">
+		        			<apex:param name="existsTaskMirageId" assignTo="{!existsTaskMirageId}" value="" />
+		        			<apex:param name="existsTaskCallId" assignTo="{!existsTaskCallId}" value="" />
+		        		</apex:actionFunction>
+		    			<apex:actionFunction name="CheckLeadConversion" action="{!CheckLeadConversion}" onComplete="softphoneController.CheckLeadConversion_Callback();" reRender="frmApexFunctions">
+		        			<apex:param name="checkLeadConvLeadId" assignTo="{!checkLeadConvLeadId}" value="" />
+		        			<apex:param name="checkLeadConvCallId" assignTo="{!checkLeadConvCallId}" value="" />
+		        			<apex:param name="checkLeadConvDoSave" assignTo="{!checkLeadConvDoSave}" value="" />
+		        		</apex:actionFunction>
+						<apex:input id="error" value="{!error}" styleClass="invisible" />
+						<apex:input id="removeTaskResult" value="{!removeTaskResult}" styleClass="idRemoveTaskResult invisible" />
+					    <apex:inputText id="removedTaskCallId" value="{!removedTaskCallId}" styleClass="idRemovedTaskCallId invisible"></apex:inputText>
+					    
+						<apex:input id="checkTaskResult" value="{!checkTaskResult}" styleClass="idCheckTaskResult invisible" />
+					    <apex:inputText id="checkTaskCallId" value="{!checkTaskCallId}" styleClass="idCheckTaskCallId invisible"></apex:inputText>
+	
+						<apex:input id="readInfoResult" value="{!readInfoResult}" styleClass="idReadInfoResult invisible" />
+					    <apex:inputText id="readInfoCallId" value="{!readInfoCallId}" styleClass="idReadInfoCallId invisible"></apex:inputText>
+						<apex:input id="readInfoLog" value="{!readInfoLog}" styleClass="invisible" />
+					    
+						<apex:input id="readTaskBasicsResult" value="{!readTaskBasicsResult}" styleClass="idReadTaskBasicsResult invisible" />
+						
+						<apex:input id="numberSearchCallId" value="{!numberSearchCallId}" styleClass="idNumberSearchCallId invisible" />
+						<apex:input id="numberSearchResult" value="{!numberSearchResult}" styleClass="idNumberSearchResult invisible" />
+						<apex:input id="numberSearchLog" value="{!numberSearchLog}" styleClass="invisible" />
+						
+						<apex:input id="existsTaskResult" value="{!existsTaskResult}" styleClass="idExistsTaskResult invisible" />
+					    <apex:inputText id="existsTaskCallId" value="{!existsTaskCallId}" styleClass="idExistsTaskCallId invisible"></apex:inputText>
+						
+						<apex:input id="checkLeadConvResult" value="{!checkLeadConvResult}" styleClass="idCheckLeadConvResult invisible" />
+						<apex:input id="checkLeadConvDoSave" value="{!checkLeadConvDoSave}" styleClass="idCheckLeadConvDoSave invisible" />
+					    <apex:inputText id="checkLeadConvCallId" value="{!checkLeadConvCallId}" styleClass="idCheckLeadConvCallId invisible"></apex:inputText>
+					</apex:form>
+				</div>
+				<div id="hintPanel" class="softphoneblock">
+				</div>
+				<div id="searchPanel" class="softphoneblock">
+				    <apex:form >
+				        <!--<apex:pageBlock id="searchBlock">-->
+				        <div id="searchBlock left">
+							<div id="linesPanel" class="softphoneblock left" style="display:none;">
+								<select id="ddlLines"></select>
+							</div>
+							<div id="searchHead" class="softphoneblock left">
+								<span class="softphoneblockLabel" data-i18n="header.phonesearch">Phone NumberIE</span>
+							</div>
+				            <apex:inputText id="searchValue" value="{!searchValue}" styleClass="idSearchValue">
+				            	<!--<apex:actionSupport action="{!Search}" event="onkeyup" reRender="resultBlock"/>-->
+				            </apex:inputText>
+				            <!--<apex:commandButton value="Search" action="{!Search}" reRender="resultBlock" styleClass="btn invisible"/>
+		    				<apex:actionFunction name="Search" action="{!Search}" reRender="resultBlock" />-->
+					        <apex:inputText id="selectedList" value="{!selectedList}" styleClass="idSelectedList invisible"></apex:inputText>
+						</div>
+				        <!--</apex:pageBlock>-->
+				    </apex:form>
+				    
+				    <div id="resultLists" class="invisible">
+				    	<apex:pageBlock id="resultBlock" mode="detail">
+					        <script>
+					        	if (softphoneController) {
+					        		softphoneController.InitResultList();
+					        	}
+					        	/*if ($('.idSearchType').val() == 'extended') {
+					        		softphoneController.SFSearchCallback();
+					        	}*/
+					        </script>
+						    <apex:form >
+					        	<apex:input id="contactListLength" value="{!contactList.size}" styleClass="idContactListLength invisible" />
+					        	<apex:input id="accountListLength" value="{!accountList.size}" styleClass="idAccountListLength invisible" />
+					        	<apex:input id="searchType" value="{!searchType}" styleClass="idSearchType invisible" />
+					        	<apex:input id="singleId" value="{!singleId}" styleClass="idSingleId invisible" />
+					        	<apex:input id="singleName" value="{!singleName}" styleClass="idSingleName invisible" />
+						    </apex:form>
+				        	<div class="resultListsHeader">
+				        		<label id="rlhContacts">Contacts</label>
+				        		<label id="rlhAccounts">Accounts</label>
+				        	</div>
+				        	<div id="contactList">
+					            <apex:pageBlockTable value="{!contactList}" var="cur">
+					                <apex:column headerValue="Contact">
+					                    <a href="javascript:softphoneController.AssignObject('{!cur.Id}', '{!cur.Name}')">{!cur.Name}</a>
+					                </apex:column>
+					                <apex:column headerValue="Number">
+					                    <!--<a href="javascript:YUI.VisualforceCallControl.callToNumber('{!cur.Name}','{!cur.Phone}')">{!cur.Phone}</a>-->
+					                    {!cur.Phone}
+					                </apex:column>
+					            </apex:pageBlockTable>
+				            </div>
+				        	<div id="accountList">
+					            <apex:pageBlockTable value="{!accountList}" var="cur">
+					                <apex:column headerValue="Account">
+					                    <a href="javascript:softphoneController.AssignObject('{!cur.Id}', '{!cur.Name}')">{!cur.Name}</a>
+					                </apex:column>
+					                <apex:column headerValue="Number">
+					                    <!--<a href="javascript:YUI.VisualforceCallControl.callToNumber('{!cur.Name}','{!cur.Phone}')">{!cur.Phone}</a>-->
+					                    {!cur.Phone}
+					                </apex:column>
+					            </apex:pageBlockTable>
+				            </div>
+						</apex:pageBlock>
+				    </div>   
+				</div>
+				<div id="incomingCall" class="softphoneblock">
+					<div class="divCallingName">
+						<label class="lblCallingName"></label>
+					</div>
+					<div id="divCallingNumber">
+						<label id="lblCallingNumber" class="txt"></label>
+					</div>
+					<div id="divCalledNumber">
+						<label data-i18n="call.called">Called number</label>
+						<label id="lblCalledNumber" class="txt"></label>
+					</div>
+				</div>
+				<div id="transferedCall" class="softphoneblock">
+					<div id="divTransferedNumber">
+						<label data-i18n="call.transferred.number">Transferred from</label>
+						<label id="lblTransferedNumber" class="txt"></label>
+					</div>
+					<div id="divTransferedFrom">
+						<label data-i18n="call.transferred.name">Name</label>
+						<label id="lblTransferedFrom" class="txt"></label>
+					</div>
+				</div>
+				<div id="outgoingCall" class="softphoneblock">
+					<div class="divCallingName">
+						<label class="lblCallingName"></label>
+					</div>
+					<div>
+						<label id="lblOutgoingNumber" class="txt"></label>
+					</div>
+				</div>
+				<div id="divCallInfo" class="softphoneblock">
+				</div>
+				<div id="callActions" class="softphoneblock">
+					<select id="actions">
+						<option data-i18n="action.header" value="">create new</option>
+						<option data-i18n="action.newcontact" value="newContact">Contact</option>
+						<option data-i18n="action.newlead" value="newLead">Lead</option>
+					</select>
+				</div>
+				<div id="actionBar" class="softphoneblock">
+					<img id="imgNumberPad" data-i18n="[title]action.numberpad" class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'dialpad.png')}"/>
+					<img id="imgDial" data-i18n="[title]action.dial" class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'make_a_call.png')}"/>
+					<img id="imgAnswer" data-i18n="[title]action.answer" class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'answer_call.png')}"/>
+					<div id="ringing" data-i18n="[title]action.ringing" class="actionImageContainer">
+						<img class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'ringing1.png')}" />
+						<img class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'ringing2.png')}" />
+						<img class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'ringing3.png')}" />
+					</div>
+					<img id="imgTransfer" data-i18n="[title]action.transfer" class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'transfer.png')}"/>
+					<img id="imgOneStepTransfer" data-i18n="[title]action.onestep" class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'one_step_transfer.png')}"/>
+					<img id="imgCompleteTransfer" data-i18n="[title]action.completetransfer" class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'transfer.png')}"/>
+					<img id="imgHold" data-i18n="[title]action.hold" class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'hold.png')}"/>
+					<img id="imgHangUp" data-i18n="[title]action.hangup" class="actionImage" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'end_call.png')}"/>
+				</div>
+				<div id="callWrapUp" class="softphoneblock">
+					<div class="showOnCallEnd">
+						<select id="ddlWrapUpStatus"></select>
+					</div>
+					<div>
+						<label data-i18n="wrapup.subject.title" class="big">Subject</label>
+						<input id="callSubject" type="text" class="xbig" />
+					</div>
+					<div id="divCallDescription">
+						<div>
+							<textarea id="callDescription" class="big"></textarea>
+						</div>
+					</div>
+					<div>
+						<label id="lblAssignObject" class="activeLink big" data-i18n="wrapup.assigned">Assigned</label>
+						<div id="assignedTo">
+							<!-- list of assigned elements -->
+						</div>
+						<!--<button id="btnAssignObject" data-i18n="wrapup.assigned">Assign</button>-->
+					</div>
+					<div>
+						<button id="btnCallWrapUpSave" class="btn showOnCallEndIfNotIL" data-i18n="wrapup.save">Save</button>
+						<button id="btnCallWrapUpCancel" class="btn showOnCallEndIfIL" data-i18n="wrapup.close">Close</button>
+						<input type="checkbox" id="chkDontSave"/>
+						<label id="lblDontSave" data-i18n="wrapup.dontsave">Don't save call</label>
+					</div>
+					<input id="hfCallWrapUpCallId" type="hidden" />
+				</div>
+				<div id="waitingCalls" class="softphoneblock">
+				</div>
+				<input id="hfCallId" type="hidden" />
+				<input id="hfAnswerOnHoldCallId" type="hidden" />
+				<input id="hfLastAction" type="hidden" />
+				<div id="numberPad" class="softphoneblock">
+					<div class="numberPadKey shadow">1</div>
+					<div class="numberPadKey shadow">2</div>
+					<div class="numberPadKey shadow">3</div>
+					<div class="numberPadKey shadow">4</div>
+					<div class="numberPadKey shadow">5</div>
+					<div class="numberPadKey shadow">6</div>
+					<div class="numberPadKey shadow">7</div>
+					<div class="numberPadKey shadow">8</div>
+					<div class="numberPadKey shadow">9</div>
+					<div class="numberPadKey shadow">*</div>
+					<div class="numberPadKey shadow">0</div>
+					<div class="numberPadKey shadow">#</div>
+				</div>
+				<div id="callHistoryHead" class="softphoneblock left">
+					<span id="ShowCallHistory" class="softphoneblockLabel" data-i18n="call.history.header">Call History</span>
+				</div>
+				<div id="callHistory">
+				</div>
+			</div>
+		</div>
+		<div class="invisible">
+			<div id="authenticate" class="invisible">
+				<label>Username</label>
+				<input id="username" type="text" />
+				<label id="hintAuthentication" class="invisible hint"></label>
+				<button id="btnAuthenticate">Ok</button>
+			</div>
+			<div id="wcfTests" class="invisible">
+				<!--
+				<div>
+					<script>
+						function StoreStatusObject(val) {
+							if (val) {
+								mirageTools.setLocalStorageObject(mirageOpenCTISettings.STORAGEKEY_STATUSOBJECT, val);
+							}
+							else {
+								mirageTools.setLocalStorageObject(mirageOpenCTISettings.STORAGEKEY_STATUSOBJECT, openCTIObject);
+							}
+						}
+						function GetStatusObject() {
+							$('#tbStatusObject').val(mirageTools.getLocalStorageValue(mirageOpenCTISettings.STORAGEKEY_STATUSOBJECT));
+						}
+					</script>
+					<button onclick="StoreStatusObject();">store status</button>
+					<button onclick="StoreStatusObject('crap');">store crap</button>
+					<button onclick="GetStatusObject();">get status</button>
+					<input type="text" id="tbStatusObject"></input>
+				</div>-->
+				<!--<div>
+					<br/>
+					<textarea id="txtTestSearch" style="width:100%; height:120px;">0891250100 or 49891250100 or \\ 49891250100 or 0891250100 or 490891250100 or 49 (0) 891250100 or \\ 490891250100 or \\ 49 (0) 891250100 or 891250100 or 891250100</textarea>
+					<input type="text" id="txtTestSearchResult"></input>
+					<button onclick="TestSearch();">TestSearch</button>
+				</div>-->
+				<!--<div>
+					<br/>
+					<textarea id="txtTestSave" style="width:100%; height:180px;"></textarea>
+					<input type="text" id="txtTestSaveResult"></input>
+					<button onclick="TestSave();">TestSave</button>
+				</div>-->
+				<div>
+					<br/>
+					<input type="text" id="txtTestSendCTIMessage"></input>
+					<button onclick="TestSendCTIMessage();">TestSendCTIMessage</button>
+				</div>
+				<!--
+				<div>
+					<script>
+						function wcftest2() {
+							openCTIInterface.WCFTest2('txtWCFTest2Response');
+						}
+					</script>
+					<button onclick="javascript:wcftest2();">WCF Test2</button>
+					<input type="text" id="txtWCFTest2Response"/>
+				</div>
+				<div>
+					<script>
+						function wcftest3() {
+							openCTIInterface.WCFTest3($('#txtWCFTest3').val(), 'txtWCFTest3Response');
+						}
+					</script>
+					<input type="text" id="txtWCFTest3"/>
+					<button onclick="javascript:wcftest3();">WCF Test3</button>
+					<input type="text" id="txtWCFTest3Response"/>
+				</div>
+				<div>
+					<script>
+						function wcftest4() {
+							openCTIInterface.WCFTest4($('#txtWCFTest4').val(), 'txtWCFTest4Response');
+						}
+					</script>
+					<input type="text" id="txtWCFTest4"/>
+					<button onclick="javascript:wcftest4();">WCF Test4</button>
+					<input type="text" id="txtWCFTest4Response"/>
+				</div>-->
+			</div>
+			<img id="imgDial" class="invisible" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons, 'make_a_call.png')}"/>
+			<img id="imgEdit" class="invisible" src="{!$Resource.OpenCTI_Icon_Edit}"/>
+			<img id="imgConStateConnectedCDC" class="invisible" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons,'connection_status_connected.png')}"/>
+			<img id="imgConStateConnectedWS" class="invisible" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons,'connection_status_yellow.png')}"/>
+			<img id="imgConStateDisconnected" class="invisible" src="{!URLFOR($Resource.MirageSystems_OpenCTI_Icons,'connection_status.png')}"/>
+			<input type="text" id="langURL" value="{!URLFOR($Resource.MirageSystems_OpenCTI_Languages)}" />
+			
+			<button id="btnWCFTests" class="btn invisible" onclick="$('#wcfTests').toggleClass('invisible')">TEST</button>
+			<button id="btnClearLocalStorage" class="btn invisible" onclick="localStorage.clear()">Clear LS</button>
+		</div>
+	</div>
+</div>
+</apex:page>

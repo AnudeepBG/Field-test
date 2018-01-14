@@ -1,0 +1,82 @@
+<apex:page controller="aqu_bd.ext_BirthdateOverview" sidebar="false" showHeader="false" showChat="false">
+<STYLE TYPE="text/css">
+/***********************************************************************************
+Company: aquilliance GmbH
+Author: Andre Mergen
+
+
+Website: www.aquilliance.de
+***********************************************************************************/
+html,body {
+    background: url("/img/alohaSkin/sidebar_sprite.png") no-repeat scroll -25px top transparent;
+    height: 100%;
+    width: 100%;
+}
+.tabelle{
+ height: 100%;
+ width: 100%
+}
+.text{
+	height: 100%;
+	width: 100%;
+	overflow-y:scroll !important;
+}
+.today
+{
+ font-weight: bold;
+}
+.normal
+{
+	 font-weight: normal;
+}
+.footer
+{
+
+	margin-bottom: 0px;
+	font-size:9px;
+	text-decoration: none;
+	text-align: right;
+}
+.errormessage
+{
+	color: red;
+	font-size:9px;
+}
+
+</STYLE>
+<table class="tabelle">
+  <tr>
+    <th valign="top">
+    <div Class="text">
+    	<apex:outputText value="{!errormessage}" escape="false" styleClass="errormessage"/>
+    	<apex:outputText value="{!message}" escape="false"/>
+		<apex:dataTable value="{!IFollowContacts}" var="IFC" id="theTable" width="100%"> 
+		<apex:column headerValue="Name"  styleClass="{!IF(IFC.aqu_bd__helper_Birthdate__c = TODAY(),'today','normal')}" width="100%">
+			<apex:outputLink value="/{!IFC.Id}" target="_parent"><apex:outputText value="{!LEFT(IFC.Name, 15)}"/><apex:outputText value="{!IF(LEN(IFC.Name)>15,'...','')}"/></apex:outputLink> 
+		</apex:column>
+		<apex:column >&nbsp;</apex:column>
+
+		<!-- only Date -->
+		<apex:column headerValue="Date" width="28px" styleClass="{!IF(IFC.aqu_bd__helper_Birthdate__c = TODAY(),'today','normal')}" style="text-align:right" rendered="{!NOT(showAge)}">   
+			  <apex:outputText value="{0, date, {!userlocal}}">
+			    <apex:param value="{!IFC.Birthdate}"/>
+			  </apex:outputText>
+		</apex:column>
+		<!-- Show Age-->
+		<apex:column headerValue="Date" width="28px" styleClass="{!IF(IFC.aqu_bd__helper_Birthdate__c = TODAY(),'today','normal')}" rendered="{!showAge}" style="text-align:right">   
+			  <apex:outputText value="{0, date, {!userlocal_short}}">
+			    <apex:param value="{!IFC.Birthdate}"/>
+			  </apex:outputText>
+		</apex:column>
+		<!-- <apex:column headerValue="Age" styleClass="{!IF(IFC.aqu_bd__helper_Birthdate__c = TODAY(),'today','normal')}" title="new Age" rendered="{!showAge}">&nbsp;(<apex:outputText value="{!FLOOR((TODAY() - IFC.Birthdate)/365.2425)+IF(IFC.helper_Birthdate__c = TODAY(),1,0)}" title="Age"/>-->
+		<apex:column headerValue="Age" styleClass="{!IF(IFC.aqu_bd__helper_Birthdate__c = TODAY(),'today','normal')}" title="new Age" rendered="{!showAge}">&nbsp;(<apex:outputText value="{!floor((TODAY() - IFC.Birthdate)/365)}" title="Age"/>
+		<apex:outputText escape="false" value="{!IF(IFC.aqu_bd__helper_Birthdate__c = TODAY(),'', '&#8679;')}"/>)</apex:column>
+	</apex:dataTable>
+	</div>
+    </th>
+  </tr>
+  <tr style="height:9px">
+    <th class="footer"><a href="http://www.aquilliance.de" target="_blank" style="text-decoration: none;">&copy; aquilliance GmbH</a></th>
+  </tr>  
+</table>
+</apex:page>

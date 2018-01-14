@@ -1,0 +1,4 @@
+<apex:page controller="cps3.CloudpondS3ConnectorController" id="CloudpondS3ConnectorAllFilesPage" sidebar="true" showHeader="true" docType="html-5.0"> 
+    <apex:sectionHeader title="{!objectSFNameHeader}" subtitle="{!RecordName}"/>
+    <c:CloudpondS3Connector objectName="{!$CurrentPage.parameters.objName}" showAll="true" />
+</apex:page>
